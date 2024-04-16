@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+    <style>
+        #messages {
+            border: 1px solid black;
+            height: 200px;
+            overflow-y: scroll;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="messages"></div>
+    <input type="text" id="inputText" placeholder="Enter your text">
+    <button onclick="sendInput()">Send Input</button>
+    <button onclick="startSession()" id="startButton">Start Session</button>
+    <button onclick="stopSession()" id="stopButton" disabled>Stop Session</button>
+    <button onclick="monitorContent()" id="monitorButton">Monitor Content</button>
+
+    <script>
+        const socket = io('http://127.0.0.1:5000');  // Change to your actual server address and port
+        const displayedMessages = new Set();  // Store messages to prevent duplication
+
+        socket.on('connect', () => {
+            appendMessage('Connected to server');
+            document.getElementById('startButton').disabled = false;
+        });
+
+        socket.on('disconnect', () => {
+            appendMessage('Disconnected from server');
+            document.getElementById('stopButton').disabled = true;
+            document.getElementById('startButton').disabled = false;
+        });
+
+        socket.on('response', (data) => {
+            appendMessage('Server: ' + data.message);
+        });
+
+        socket.on('content_update', (data) => {
+            if (data.contents.length > 0) {
+                data.contents.forEach(content => {
+                    appendMessage('New Content: ' + content);
+                });
+            } else {
+                appendMessage('No new content.');
+            }
+        });
+
+        function sendInput() {
+            const inputText = document.getElementById('inputText').value;
+            if (inputText.trim() === '') return; // Prevent sending empty input
+            socket.emit('send_input', { input: inputText });
+            document.getElementById('inputText').value = '';
+        }
+
+        function startSession() {
+            socket.emit('start');
+            document.getElementById('startButton').disabled = true;
+            document.getElementById('stopButton').disabled = false;
+        }
+
+        function stopSession() {
+            socket.emit('stop');
+            document.getElementById('stopButton').disabled = true;
+            document.getElementById('startButton').disabled = false;
+        }
+
+        function monitorContent() {
+            socket.emit('monitor');
+        }
+
+        function appendMessage(message) {
+            // Check if the message is already displayed
+            if (!displayedMessages.has(message)) {
+                const messageElement = document.createElement('div');
+                messageElement.textContent = message;
+                document.getElementById('messages').appendChild(messageElement);
+                displayedMessages.add(message);  // Add to set to track displayed messages
+            }
+        }
+    </script>
+</body>
+</html>
