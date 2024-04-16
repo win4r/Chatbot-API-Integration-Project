@@ -1,4 +1,3 @@
-```
 # Chatbot API Integration Project
 
 This project demonstrates how to transition a traditional chatbot, initially interacted with through Selenium, to a more scalable and robust API-driven model. By leveraging Flask-SocketIO, this transformation enhances the chatbot's responsiveness and allows for real-time interaction without the overhead of a browser interface.
@@ -79,4 +78,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Buy Me a Coffee
 [!["Buy Me A Coffee"](https://storage.ko-fi.com/cdn/kofi2.png?v=3)](https://ko-fi.com/aila)
-```
